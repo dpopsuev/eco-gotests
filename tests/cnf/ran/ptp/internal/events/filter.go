@@ -70,6 +70,25 @@ func (f eventFilterAll) Filter(e event.Event) bool {
 	return true
 }
 
+// eventFilterNot is a filter that matches if the wrapped filter does not match the event. It negates a single filter.
+type eventFilterNot struct {
+	filter EventFilter
+}
+
+// Assert at compile time that eventFilterNot implements EventFilter.
+var _ EventFilter = eventFilterNot{}
+
+// Not returns a filter that matches if the provided filter does not match the event. This is equivalent to a logical
+// NOT operation on the filter.
+func Not(f EventFilter) EventFilter {
+	return eventFilterNot{filter: f}
+}
+
+// Filter implements the EventFilter interface. It inverts the result of the wrapped filter.
+func (f eventFilterNot) Filter(e event.Event) bool {
+	return !f.filter.Filter(e)
+}
+
 // eventFilterIsType is a filter that matches if the event is of the specified type.
 type eventFilterIsType eventptp.EventType
 
